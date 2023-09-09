@@ -171,8 +171,21 @@ def aStarSearch(problem:SearchProblem, heuristic=nullHeuristic)->List[Direction]
     '''
         INSÉREZ VOTRE SOLUTION À LA QUESTION 4 ICI
     '''
+    initState = problem.getStartState()
+    visited = []
+    fringe = util.PriorityQueue()
+    cost = heuristic(initState,problem)
+    fringe.update((initState,[]),cost)
 
-    util.raiseNotDefined()
+    while not fringe.isEmpty() :
+        state,directions = fringe.pop()
+
+        if problem.isGoalState(state):
+           return directions
+        if state not in visited :
+            for nextState in problem.getSuccessors(state) :
+                fringe.update((nextState[0],directions+[nextState[1]]),problem.getCostOfActions(directions) + nextState[2] + heuristic(nextState[0],problem))
+            visited.append(state)
 
 
 # Abbreviations
