@@ -145,8 +145,19 @@ def uniformCostSearch(problem:SearchProblem)->List[Direction]:
     '''
         INSÉREZ VOTRE SOLUTION À LA QUESTION 3 ICI
     '''
+    initState = problem.getStartState()
+    visited = []
+    fringe = util.PriorityQueue()
+    fringe.update((initState,[]),0)
+    while not fringe.isEmpty() :
+        state,directions = fringe.pop()
 
-    util.raiseNotDefined()
+        if problem.isGoalState(state):
+           return directions
+        if state not in visited :
+            for nextState in problem.getSuccessors(state) :
+                fringe.update((nextState[0],directions+[nextState[1]]),problem.getCostOfActions(directions) + nextState[2])
+            visited.append(state)
 
 def nullHeuristic(state:GameState, problem:SearchProblem=None)->List[Direction]:
     """
