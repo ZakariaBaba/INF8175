@@ -305,8 +305,7 @@ class CornersProblem(search.SearchProblem):
         '''
             INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
         '''
-        
-        util.raiseNotDefined()
+        return self.startingPosition,[list(point) for point in self.corners]
 
     def isGoalState(self, state):
         """
@@ -316,8 +315,7 @@ class CornersProblem(search.SearchProblem):
         '''
             INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
         '''
-
-        util.raiseNotDefined()
+        return len(state[1]) == 0
 
     def getSuccessors(self, state):
         """
@@ -342,7 +340,16 @@ class CornersProblem(search.SearchProblem):
             '''
                 INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
             '''
+            (x,y), corners = state
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
 
+            if not hitsWall:
+                corner = corners.copy()
+                if [nextx,nexty] in corner :
+                    corner.remove([nextx,nexty])
+                successors.append((((nextx, nexty), corner), action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
