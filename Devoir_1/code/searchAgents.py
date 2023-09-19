@@ -511,5 +511,28 @@ def foodHeuristic(state, problem: FoodSearchProblem):
     '''
         INSÉREZ VOTRE SOLUTION À LA QUESTION 7 ICI
     '''
-    return 0
+     #Initialisation des positions 
+    foodGridList=foodGrid.asList()
+    distance=[]
+    score=0
+    #Verification du point final, Calcul des distances et recherche du chemin court s'il en existe
+    if len(foodGridList)==0:
+        return score
+    for item in foodGridList:
+        length=abs(position[0]-item[0])+abs(position[1]-item[1])
+        distance.append(length)
+    score +=min(distance)
+    index = distance.index(min(distance))
+    endx=foodGridList[index]
+    newEndPosition=frozenset(item for item in foodGridList if item !=endx)
+    #Verification du point final, Calcul des distances et recherche du chemin s'il en existe
+    distance_2=[]
+    if len(newEndPosition)==0:
+        return score
+    for elem in newEndPosition:
+        length_2=abs(endx[0]-elem[0])+ abs(endx[1]-elem[1])
+        distance_2.append(length_2)
+    score +=max(distance_2)
+    return score
+    
 
