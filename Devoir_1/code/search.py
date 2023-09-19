@@ -13,6 +13,14 @@
 
 
 """
+Noms:                              MatriculeS:
+NGOUNOU TCHAWE Armel                2238017
+ZAKARIA Babahadji 
+
+
+"""
+
+"""
 In search.py, you will implement generic search algorithms which are called by
 Pacman agents (in searchAgents.py).
 """
@@ -97,21 +105,22 @@ def depthFirstSearch(problem:SearchProblem)->List[Direction]:
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-
+    #Initialisation des états, définition de la pile et la mémoire
     initState = problem.getStartState()
-    visited = []
+    visited = set()
     fringe = util.Stack()
     fringe.push((initState,[]))
-
+    #Boucle de parcours 
     while not fringe.isEmpty() :
         state,directions = fringe.pop()
-        
+        #vérification de la position de la boule jaune
         if problem.isGoalState(state):
            return directions
+        #éviter de passer sur les états déjà visités, et mettre à jour la pile avec les successeurs
         if state not in visited :
             for nextState in problem.getSuccessors(state) :
                 fringe.push((nextState[0],directions+[nextState[1]]))
-            visited.append(state)
+            visited.add(state)
     return []
 
 def breadthFirstSearch(problem:SearchProblem)->List[Direction]:
@@ -121,20 +130,22 @@ def breadthFirstSearch(problem:SearchProblem)->List[Direction]:
     '''
         INSÉREZ VOTRE SOLUTION À LA QUESTION 2 ICI
     '''
+    #Initiailisation des états, définition de la file et la mémoire
     initState = problem.getStartState()
-    visited = []
+    visited = set()
     fringe = util.Queue()
     fringe.push((initState,[]))
-
+    # Boucle de parcours 
     while not fringe.isEmpty() :
         state,directions = fringe.pop()
-       
+       # verification de la position de la boule jaune 
         if problem.isGoalState(state):
            return directions
+        #éviter de passer sur les états déjà visités, et mettre à jour la file avec les successeurs
         if state not in visited :
             for nextState in problem.getSuccessors(state) :
                 fringe.push((nextState[0],directions+[nextState[1]]))
-            visited.append(state)
+            visited.add(state)
     return []
 
 
@@ -145,19 +156,23 @@ def uniformCostSearch(problem:SearchProblem)->List[Direction]:
     '''
         INSÉREZ VOTRE SOLUTION À LA QUESTION 3 ICI
     '''
+    #Initiailisation des états, des coûts, définition de la priority file  et la mémoire
     initState = problem.getStartState()
-    visited = []
+    visited = set()
     fringe = util.PriorityQueue()
     fringe.update((initState,[]),0)
+    #Boucle de parcours
     while not fringe.isEmpty() :
         state,directions = fringe.pop()
-
+        # verification de la position de la boule jaune 
         if problem.isGoalState(state):
            return directions
+        #éviter de passer sur les états déjà visités, et mettre à jour la file avec les successeurs
         if state not in visited :
             for nextState in problem.getSuccessors(state) :
                 fringe.update((nextState[0],directions+[nextState[1]]),problem.getCostOfActions(directions) + nextState[2])
-            visited.append(state)
+            visited.add(state)
+    return[]
 
 def nullHeuristic(state:GameState, problem:SearchProblem=None)->List[Direction]:
     """
@@ -171,21 +186,24 @@ def aStarSearch(problem:SearchProblem, heuristic=nullHeuristic)->List[Direction]
     '''
         INSÉREZ VOTRE SOLUTION À LA QUESTION 4 ICI
     '''
+    #Initiailisation des états, des coûts retourné par l'heuristic, définition de la priority file  et la mémoire
     initState = problem.getStartState()
-    visited = []
+    visited = set()
     fringe = util.PriorityQueue()
     cost = heuristic(initState,problem)
     fringe.update((initState,[]),cost)
-
+    #Boucle de parcours
     while not fringe.isEmpty() :
         state,directions = fringe.pop()
-
+        # verification de la position de la boule jaune 
         if problem.isGoalState(state):
            return directions
+        #éviter de passer sur les états déjà visités, et mettre à jour la file avec les successeurs
         if state not in visited :
             for nextState in problem.getSuccessors(state) :
                 fringe.update((nextState[0],directions+[nextState[1]]),problem.getCostOfActions(directions) + nextState[2] + heuristic(nextState[0],problem))
-            visited.append(state)
+            visited.add(state)
+    return[]
 
 
 # Abbreviations

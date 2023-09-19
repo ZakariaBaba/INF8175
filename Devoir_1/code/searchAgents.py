@@ -11,6 +11,13 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
+"""
+Noms:                              MatriculeS:
+NGOUNOU TCHAWE Armel                2238017
+ZAKARIA Babahadji 
+
+
+"""
 
 """
 This file contains all of the agents that can be selected to control Pacman.  To
@@ -306,7 +313,7 @@ class CornersProblem(search.SearchProblem):
         '''
             INSÉREZ VOTRE SOLUTION À LA QUESTION 5 ICI
         '''
-        return self.startingPosition,set(self.corners)
+        return (self.startingPosition,self.corners)
 
     def isGoalState(self, state):
         """
@@ -344,15 +351,12 @@ class CornersProblem(search.SearchProblem):
             (x,y), corners = state
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-            hitsWall = self.walls[nextx][nexty]
-
-            if not hitsWall:
-                corner = corners.copy()
-                if (nextx,nexty) in corner :
-                    corner.remove((nextx,nexty))
+            # Vérification de la présence du mûr, generation du nouveau corner et mise à jour des successeurs
+            if not self.walls[nextx][nexty]:
+                newCorner=frozenset(item for item in corners if item!= (nextx,nexty))
                 cost = self.costFn((nextx,nexty))
-                successors.append((((nextx, nexty), corner), action, cost))
-
+                successors.append((((nextx, nexty), newCorner), action, cost))
+        # Bookkeeping for display purposes
         self._expanded += 1 # DO NOT CHANGE
         return successors
 
@@ -384,13 +388,15 @@ def cornersHeuristic(state, problem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
-    distance=[]
-    score=0
-    actualPosition=state[0]
-    finalPositions=state[1]
+  
     '''
         INSÉREZ VOTRE SOLUTION À LA QUESTION 6 ICI
     '''
+    #Initialisation des positions 
+    distance=[]
+    score=0
+    actualPosition,finalPositions=state
+    #Verification du point final, Calcul des distances et recherche du chemin court s'il en existe
     if len(finalPositions)==0:
         return score
     for item in finalPositions:
@@ -398,10 +404,9 @@ def cornersHeuristic(state, problem):
         distance.append(length)
     score +=min(distance)
     index = distance.index(min(distance))
-    endPosition = list(finalPositions)
-    end=endPosition[index]
-    newEndPosition=[item for item in finalPositions if item !=end]
-
+    end=(tuple(finalPositions))[index]
+    newEndPosition=frozenset(item for item in finalPositions if item !=end)
+    #Verification du point final, Calcul des distances et recherche du chemin s'il en existe
     distance_2=[]
     if len(newEndPosition)==0:
         return score
@@ -506,7 +511,5 @@ def foodHeuristic(state, problem: FoodSearchProblem):
     '''
         INSÉREZ VOTRE SOLUTION À LA QUESTION 7 ICI
     '''
-
-
     return 0
 
