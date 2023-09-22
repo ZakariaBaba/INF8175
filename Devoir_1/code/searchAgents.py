@@ -394,27 +394,27 @@ def cornersHeuristic(state, problem):
     '''
     #Initialisation des positions 
     distance=[]
-    score=0
+    stimation=0
     actualPosition,finalPositions=state
-    #Verification du point final, Calcul des distances et recherche du chemin court s'il en existe
+    #Verification du point final, Calcul des distances et recherche du point le plus proche
     if len(finalPositions)==0:
-        return score
+        return stimation
     for item in finalPositions:
-        length=abs(actualPosition[0]-item[0])+abs(actualPosition[1]-item[1])
+        length=util.manhattanDistance(actualPosition,item)
         distance.append(length)
-    score +=min(distance)
+    stimation +=min(distance)
     index = distance.index(min(distance))
     end=(tuple(finalPositions))[index]
     newEndPosition=frozenset(item for item in finalPositions if item !=end)
-    #Verification du point final, Calcul des distances et recherche du chemin s'il en existe
+    #Verification du point final, Calcul des distances et recherche du point le plus éloigné
     distance_2=[]
     if len(newEndPosition)==0:
-        return score
+        return stimation
     for elem in newEndPosition:
-        length_2=abs(end[0]-elem[0])+ abs(end[1]-elem[1])
+        length_2=util.manhattanDistance(end,elem)
         distance_2.append(length_2)
-    score +=max(distance_2)
-    return score
+    stimation +=max(distance_2)
+    return stimation
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -511,28 +511,36 @@ def foodHeuristic(state, problem: FoodSearchProblem):
     '''
         INSÉREZ VOTRE SOLUTION À LA QUESTION 7 ICI
     '''
-     #Initialisation des positions 
+     #Initialisation  
     foodGridList=foodGrid.asList()
-    distance=[]
-    score=0
-    #Verification du point final, Calcul des distances et recherche du chemin court s'il en existe
+    listDistanceForeachFood=[]
+    listDistanceFoodForRemPosition=[]
+    estimation=0   
+    """
+    Verification absence de nourriture, Calcul des distances 
+    et recherche de la nourriture la plus proche et sa position x,y dans la grille de nourriture.
+    """
     if len(foodGridList)==0:
-        return score
+        return estimation
     for item in foodGridList:
-        length=abs(position[0]-item[0])+abs(position[1]-item[1])
-        distance.append(length)
-    score +=min(distance)
-    index = distance.index(min(distance))
-    endx=foodGridList[index]
-    newEndPosition=frozenset(item for item in foodGridList if item !=endx)
-    #Verification du point final, Calcul des distances et recherche du chemin s'il en existe
-    distance_2=[]
-    if len(newEndPosition)==0:
-        return score
-    for elem in newEndPosition:
-        length_2=abs(endx[0]-elem[0])+ abs(endx[1]-elem[1])
-        distance_2.append(length_2)
-    score +=max(distance_2)
-    return score
+        lengths=util.manhattanDistance(position,item)
+        listDistanceForeachFood.append(lengths)
+    estimation +=min(listDistanceForeachFood)
+    index = listDistanceForeachFood.index(min(listDistanceForeachFood))
+    nearFoodPosition=foodGridList[index]
+    remainingFoodPosition=frozenset(item for item in foodGridList if item !=nearFoodPosition)
+    """
+    Verification du point final, Calcul des distances recherche de la nourriture la plus éloignée
+      et sa position x,y dans la grille de nourriture.
+    """
+    if len(remainingFoodPosition)==0:
+        return estimation
+    for elem in remainingFoodPosition:
+        lengths_2=util.manhattanDistance(nearFoodPosition,elem)
+        listDistanceFoodForRemPosition.append(lengths_2)
+    estimation +=max(listDistanceFoodForRemPosition)
     
+    return estimation
+
+
 

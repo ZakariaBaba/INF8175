@@ -198,7 +198,7 @@ def aStarSearch(problem:SearchProblem, heuristic=nullHeuristic)->List[Direction]
         # verification de la position de la boule jaune 
         if problem.isGoalState(state):
            return directions
-        #éviter de passer sur les états déjà visités, et mettre à jour la file avec les successeurs
+        #éviter de passer sur les états déjà visités, et mettre à jour la file avec les successeurs et leur heuristique
         if state not in visited :
             for nextState in problem.getSuccessors(state) :
                 fringe.update((nextState[0],directions+[nextState[1]]),problem.getCostOfActions(directions) + nextState[2] + heuristic(nextState[0],problem))
