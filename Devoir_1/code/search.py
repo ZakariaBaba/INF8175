@@ -15,7 +15,7 @@
 """
 Noms:                              MatriculeS:
 NGOUNOU TCHAWE Armel                2238017
-ZAKARIA Babahadji                   2028025
+BABAHADJI Zakaria                   2028025
 
 
 """
@@ -194,7 +194,7 @@ def aStarSearch(problem:SearchProblem, heuristic=nullHeuristic)->List[Direction]
     fringe.update((initState,[]),cost)
     #Boucle de parcours
     while not fringe.isEmpty() :
-        state,directions = fringe.pop()
+        state,directions = fringe.pop() 
         # verification de la position de la boule jaune 
         if problem.isGoalState(state):
            return directions

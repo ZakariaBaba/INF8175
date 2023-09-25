@@ -14,7 +14,7 @@
 """
 Noms:                              MatriculeS:
 NGOUNOU TCHAWE Armel                2238017
-ZAKARIA Babahadji                   2028025
+BABAHADJI Zakaria                   2028025
 
 
 """
@@ -393,28 +393,28 @@ def cornersHeuristic(state, problem):
         INSÉREZ VOTRE SOLUTION À LA QUESTION 6 ICI
     '''
     #Initialisation des positions 
-    distance=[]
-    stimation=0
+    distances=[]
+    estimation=0
     actualPosition,finalPositions=state
     #Verification du point final, Calcul des distances et recherche du point le plus proche
     if len(finalPositions)==0:
-        return stimation
+        return estimation
     for item in finalPositions:
         length=util.manhattanDistance(actualPosition,item)
-        distance.append(length)
-    stimation +=min(distance)
-    index = distance.index(min(distance))
+        distances.append(length)
+    estimation +=min(distances)
+    index = distances.index(min(distances))
     end=(tuple(finalPositions))[index]
     newEndPosition=frozenset(item for item in finalPositions if item !=end)
-    #Verification du point final, Calcul des distances et recherche du point le plus éloigné
+    #Verification du point final, Calcul des distances et recherche la distance  du point le plus éloigné
     distance_2=[]
     if len(newEndPosition)==0:
-        return stimation
+        return estimation
     for elem in newEndPosition:
         length_2=util.manhattanDistance(end,elem)
         distance_2.append(length_2)
-    stimation +=max(distance_2)
-    return stimation
+    estimation +=max(distance_2)
+    return estimation
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -469,7 +469,7 @@ class FoodSearchProblem:
             x, y = int(x + dx), int(y + dy)
             if self.walls[x][y]:
                 return 999999
-            cost += 1
+            cost += 1 
         return cost
 
 class AStarFoodSearchAgent(SearchAgent):
@@ -507,7 +507,7 @@ def foodHeuristic(state, problem: FoodSearchProblem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-
+    
     '''
         INSÉREZ VOTRE SOLUTION À LA QUESTION 7 ICI
     '''
@@ -516,6 +516,7 @@ def foodHeuristic(state, problem: FoodSearchProblem):
     listDistanceForeachFood=[]
     listDistanceFoodForRemPosition=[]
     estimation=0   
+    
     """
     Verification absence de nourriture, Calcul des distances 
     et recherche de la nourriture la plus proche et sa position x,y dans la grille de nourriture.
@@ -524,12 +525,11 @@ def foodHeuristic(state, problem: FoodSearchProblem):
         return estimation
     for item in foodGridList:
         lengths=util.manhattanDistance(position,item)
-        listDistanceForeachFood.append(lengths)
-    estimation +=min(listDistanceForeachFood)
-    index = listDistanceForeachFood.index(min(listDistanceForeachFood))
-    nearFoodPosition=foodGridList[index]
+        listDistanceForeachFood.append((lengths,(item)))
+    content =min(listDistanceForeachFood)
+    estimation,nearFoodPosition=content
     remainingFoodPosition=frozenset(item for item in foodGridList if item !=nearFoodPosition)
-    """
+    """   
     Verification du point final, Calcul des distances recherche de la nourriture la plus éloignée
       et sa position x,y dans la grille de nourriture.
     """
@@ -537,10 +537,17 @@ def foodHeuristic(state, problem: FoodSearchProblem):
         return estimation
     for elem in remainingFoodPosition:
         lengths_2=util.manhattanDistance(nearFoodPosition,elem)
-        listDistanceFoodForRemPosition.append(lengths_2)
-    estimation +=max(listDistanceFoodForRemPosition)
-    
-    return estimation
-
+        listDistanceFoodForRemPosition.append((lengths_2,(elem)))
+    content_2=max(listDistanceFoodForRemPosition)
+    estimation_2,farFoodPosition=content_2
+    """
+    environCustomization=PositionSearchProblem(problem.startingGameState, start=nearFoodPosition, goal=farFoodPosition, warn=False, visualize=False)
+    cost=problem.getCostOfActions(search.uniformCostSearch(environCustomization))
+    if cost!=999999:
+        estimation+=cost
+    else:
+        estimation
+    """
+    return estimation_2+estimation
 
 
