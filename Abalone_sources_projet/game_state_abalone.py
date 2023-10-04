@@ -250,7 +250,7 @@ class GameStateAbalone(GameState):
         if id_add is not None:
             scores[id_add] -= 1
 
-        # TODO print(scores)
+        # print(scores)
         return scores
 
     def __str__(self) -> str:
