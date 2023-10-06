@@ -42,23 +42,19 @@ class MyPlayer(PlayerAbalone):
         _,action = self.max_value(current_state)
         return action
     
-    def max_value(self, state: GameState, alpha = -math.inf, beta = math.inf):
-        #TODO
-        # print(state)
+    def max_value(self, state: GameState, alpha = -math.inf, beta = math.inf, maxDepth = 0):
 
         if state.is_done():
             return state.get_player_score(self), None
+        elif maxDepth == 3:
+            return self.heuristic(state), None
         best_value = -math.inf
         best_action = None
-        possible_actions = state.generate_possible_actions()
-        for action in possible_actions:
+        
+        for action in state.get_possible_actions():
             next_state = action.get_next_game_state()
-            v,_ = self.min_value(next_state,alpha,beta)
-            # print(v)
+            v,_ = self.min_value(next_state,alpha,beta,maxDepth+1)
             if v > best_value:
-                # print('v :' + str(v))
-                # print('v* : ' + str(best_value))
-                # print(action)
                 best_value = v
                 best_action = action
                 alpha = max(alpha,best_value)
@@ -66,17 +62,17 @@ class MyPlayer(PlayerAbalone):
                 return best_value, best_action
         return best_value, best_action
 
-    def min_value(self,state:GameState, alpha = -math.inf, beta = math.inf):
+    def min_value(self,state:GameState, alpha = -math.inf, beta = math.inf,maxDepth = 0):
             
         if state.is_done():
-            # print(state.get_player_score(self))
             return state.get_player_score(self), None
+        elif maxDepth ==3:
+            return self.heuristic(state), None
         best_value = math.inf
         best_action = None
-        possible_actions = state.generate_possible_actions()
-        for action in possible_actions:
+        for action in state.get_possible_actions():
             next_state = action.get_next_game_state()
-            v,_ = self.max_value(next_state,alpha,beta)
+            v,_ = self.max_value(next_state,alpha,beta,maxDepth+1)
             if v < best_value:
                 best_value = v
                 best_action = action
@@ -84,3 +80,8 @@ class MyPlayer(PlayerAbalone):
             if best_value <= alpha:
                 return best_value, best_action
         return best_value, best_action
+    
+
+    def heuristic(self,state: GameState):  
+    
+        return state.get_player_score(self)
