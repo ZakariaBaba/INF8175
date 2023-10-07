@@ -393,11 +393,17 @@ def cornersHeuristic(state, problem):
         INSÉREZ VOTRE SOLUTION À LA QUESTION 6 ICI
     '''
     #Initialisation des positions 
+<<<<<<< HEAD
     distances=[]
     estimation=0
+=======
+    distance=[]
+    score=0
+>>>>>>> e88884c730b13373572d7c1dde22b3ae9ad38230
     actualPosition,finalPositions=state
-    #Verification du point final, Calcul des distances et recherche du point le plus proche
+    #Verification du point final, Calcul des distances et recherche du chemin court s'il en existe
     if len(finalPositions)==0:
+<<<<<<< HEAD
         return estimation
     for item in finalPositions:
         length=util.manhattanDistance(actualPosition,item)
@@ -410,11 +416,30 @@ def cornersHeuristic(state, problem):
     distance_2=[]
     if len(newEndPosition)==0:
         return estimation
+=======
+        return score
+    for item in finalPositions:
+        length=abs(actualPosition[0]-item[0])+abs(actualPosition[1]-item[1])
+        distance.append(length)
+    score +=min(distance)
+    index = distance.index(min(distance))
+    end=(tuple(finalPositions))[index]
+    newEndPosition=frozenset(item for item in finalPositions if item !=end)
+    #Verification du point final, Calcul des distances et recherche du chemin s'il en existe
+    distance_2=[]
+    if len(newEndPosition)==0:
+        return score
+>>>>>>> e88884c730b13373572d7c1dde22b3ae9ad38230
     for elem in newEndPosition:
-        length_2=util.manhattanDistance(end,elem)
+        length_2=abs(end[0]-elem[0])+ abs(end[1]-elem[1])
         distance_2.append(length_2)
+<<<<<<< HEAD
     estimation +=max(distance_2)
     return estimation
+=======
+    score +=max(distance_2)
+    return score
+>>>>>>> e88884c730b13373572d7c1dde22b3ae9ad38230
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -511,6 +536,7 @@ def foodHeuristic(state, problem: FoodSearchProblem):
     '''
         INSÉREZ VOTRE SOLUTION À LA QUESTION 7 ICI
     '''
+<<<<<<< HEAD
      #Initialisation  
     foodGridList=foodGrid.asList()
     listDistanceForeachFood=[]
@@ -544,5 +570,41 @@ def foodHeuristic(state, problem: FoodSearchProblem):
     estimation_2,farFoodPosition=content_2
     
     return estimation_2+estimation
+=======
+     #Initialisation des positions 
+    foodPositions = foodGrid.asList().copy()
 
+    if len(foodPositions) == 0:
+        return 0
 
+    closestFood, _ = getClosestCorner(position, foodPositions)
+    distanceClosestFood = astarDistance(position, closestFood, problem.startingGameState)
+    farestFood, _ = getFarest(closestFood, foodPositions)
+    distanceFarFood = astarDistance(closestFood, farestFood, problem.startingGameState)
+
+    return distanceClosestFood + distanceFarFood
+
+    
+
+def getClosestCorner(position, corners):
+>>>>>>> e88884c730b13373572d7c1dde22b3ae9ad38230
+
+    cornersDistances = [(util.manhattanDistance(position,corner), corner)
+                        for corner in corners]
+
+    minDistance, minCorner = min(cornersDistances)
+
+    return minCorner, minDistance
+
+def astarDistance(start, end, gameState):
+    problem = PositionSearchProblem(gameState, start=start, goal=end, warn=False, visualize=False)
+    return problem.getCostOfActions(search.astar(problem, heuristic=manhattanHeuristic))
+
+def getFarest(position, corners):
+
+    cornersDistances = [(util.manhattanDistance(position,corner), corner)
+                        for corner in corners]
+
+    minDistance, minCorner = max(cornersDistances)
+
+    return minCorner, minDistance
