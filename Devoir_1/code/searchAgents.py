@@ -526,9 +526,11 @@ def foodHeuristic(state, problem: FoodSearchProblem):
     for item in foodGridList:
         lengths=util.manhattanDistance(position,item)
         listDistanceForeachFood.append((lengths,(item)))
+        
     content =min(listDistanceForeachFood)
     estimation,nearFoodPosition=content
     remainingFoodPosition=frozenset(item for item in foodGridList if item !=nearFoodPosition)
+    
     """   
     Verification du point final, Calcul des distances recherche de la nourriture la plus éloignée
       et sa position x,y dans la grille de nourriture.
@@ -540,14 +542,7 @@ def foodHeuristic(state, problem: FoodSearchProblem):
         listDistanceFoodForRemPosition.append((lengths_2,(elem)))
     content_2=max(listDistanceFoodForRemPosition)
     estimation_2,farFoodPosition=content_2
-    """
-    environCustomization=PositionSearchProblem(problem.startingGameState, start=nearFoodPosition, goal=farFoodPosition, warn=False, visualize=False)
-    cost=problem.getCostOfActions(search.uniformCostSearch(environCustomization))
-    if cost!=999999:
-        estimation+=cost
-    else:
-        estimation
-    """
+    
     return estimation_2+estimation
 
 
