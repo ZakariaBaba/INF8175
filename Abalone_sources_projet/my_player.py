@@ -37,8 +37,8 @@ class MyPlayer(PlayerAbalone):
             Action: selected feasible action
         """
         #TODO
-        # print(current_state.rep)
-            
+        # [print(*x) for x in current_state.get_rep().get_grid()] 
+        # [print(a,b.__dict__) for a,b in current_state.get_rep().env.items()]         
         _,action = self.max_value(current_state)
         return action
     
@@ -50,7 +50,6 @@ class MyPlayer(PlayerAbalone):
             return self.heuristic(state), None
         best_value = -math.inf
         best_action = None
-        
         for action in state.get_possible_actions():
             next_state = action.get_next_game_state()
             v,_ = self.min_value(next_state,alpha,beta,maxDepth+1)
@@ -66,7 +65,7 @@ class MyPlayer(PlayerAbalone):
             
         if state.is_done():
             return state.get_player_score(self), None
-        elif maxDepth ==3:
+        elif maxDepth == 3:
             return self.heuristic(state), None
         best_value = math.inf
         best_action = None
@@ -82,6 +81,29 @@ class MyPlayer(PlayerAbalone):
         return best_value, best_action
     
 
-    def heuristic(self,state: GameState):  
+    def heuristic(self,state: GameState):
+        # neighbours = state.get_neighbours(4,0)
+        # is_in_board = state.in_hexa(neighbours['right'][1])  
+        # print(is_in_board)
+
+        
+        score = 0
+        for position,piece in state.get_rep().env.items():
+            if piece.__dict__['piece_type'] == self.piece_type:    
+                neighbours = state.get_neighbours(position[0],position[1])
+                for direction,neighbour in neighbours.items():
+                    # Verifying if the neighbour is the same color
+                    if neighbour and neighbour[0] == self.piece_type and state.in_hexa(neighbour[1]):
+                        score += 1
+                    # Verifying if the neighbour is not the same color
+                    elif neighbour and neighbour[0] != self.piece_type:
+                        score += 3
+                # Having more pieces near the center is better
+                score += self.manhattan_distance(position,(8,4))
+        return score
+
+    def manhattan_distance(self,position1,position2):
+        return abs(position1[0]-position2[0]) + abs(position1[1]-position2[1])
     
-        return state.get_player_score(self)
+    def euclidean_distance(self,position1,position2):
+        return math.sqrt((position1[0]-position2[0])**2 + (position1[1]-position2[1])**2)
