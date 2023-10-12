@@ -99,7 +99,7 @@ class MyPlayer(PlayerAbalone):
                     elif neighbour and neighbour[0] != self.piece_type:
                         score += 3
                 # Having more pieces near the center is better
-                score += self.manhattan_distance(position,(8,4))
+                score -= self.manhattan_distance(position,(8,4))
         return score
 
     def manhattan_distance(self,position1,position2):
