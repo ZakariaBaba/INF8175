@@ -1,70 +1,58 @@
+import math
 from uflp import UFLP
 from typing import List, Tuple
 import random
+import itertools
 
 
 def solve(problem: UFLP) -> Tuple[List[int], List[int]]:
-    """
-    Votre implementation, doit resoudre le probleme via recherche locale.
 
-    Args:
-        problem (UFLP): L'instance du probleme à résoudre
-
-    Returns:
-        Tuple[List[int], List[int]]: 
-        La premiere valeur est une liste représentant les stations principales ouvertes au format [0, 1, 0] qui indique que seule la station 1 est ouverte
-        La seconde valeur est une liste représentant les associations des stations satellites au format [1 , 4] qui indique que la premiere station est associée à la station pricipale d'indice 1 et la deuxieme à celle d'indice 4
-    """
-    "Fonction de Voisinage : N(s): S->2^S"
-    "Fonction de validite : L(N(s), s) : 2S × S → 2S"
-    "Fonction de selection : Q(L(N(s), s), s) : 2S × S → S"
-    "Fonction de cout : f : S → R"
-    "Fonction de recherche locale : s0 ∈ S, s ∈ S, s0 ← s"
+    temp = 100
+    cooling_rate = 0.90
     
     #Solution initiale
     main_stations_opened = [random.choice([0, 1]) for _ in range(problem.n_main_station)]
-    satellite_station_association = [0 for _ in range(problem.n_satellite_station)]
-
+    if(sum(main_stations_opened) == 0):
+        main_stations_opened[random.randint(0, problem.n_main_station - 1)] = 1
+    index = [i for i, x in enumerate(main_stations_opened) if x == 1]
+    best_satellites = [random.choice(index) for _ in range(problem.n_satellite_station)]
     best_stations = main_stations_opened
-    best_association = satellite_station_association
-    best_cost = problem.calcultate_cost(best_stations, best_association) 
+    best_cost = problem.calcultate_cost(best_stations, best_satellites)
 
-    for _ in range(100000):
-        neighbor_main,neighbor_sattelite = neighbor(problem, best_stations, best_association)
-        if neighbor_main is None or neighbor_sattelite is None:
-            continue
 
-        neighbor_cost = evaluate(problem,neighbor_main, neighbor_sattelite)
-        if neighbor_cost < best_cost:
-            best_stations = neighbor_main
-            best_association = neighbor_sattelite
-            best_cost = neighbor_cost
+    neighbor_main,neighbor_sattelite = neighbor(problem, best_stations)
+   
+    for permutation in neighbor_main:
+        for index,satelite in enumerate(permutation):
+            new_cost = problem.calcultate_cost(permutation, neighbor_sattelite[index])
+            delta_cost = new_cost - best_cost
+          
+            if delta_cost < 0  or random.random()< math.exp(-delta_cost / temp) :
+                best_stations = permutation
+                best_satellites = neighbor_sattelite[index]
+                best_cost = new_cost
+        temp *= cooling_rate
+    return best_stations, best_satellites
 
-    for association in best_association:
-        if best_stations[association] == 0:
-            best_stations[association] = 1
-    return best_stations, best_association
+def neighbor(problem: UFLP,stations):
+    unique_permutations = set()
+    satellite_combinations = []
+    # if(len(stations) <=10):
+    #     for perm in itertools.permutations(stations, len(stations)):
+    #         if perm not in unique_permutations:
+    #             unique_permutations.add(perm)
+    #     for perm in unique_permutations:
+    #         index = [i for i, x in enumerate(perm) if x == 1]
+    #         satellite_combinations.append([random.choice(index) for _ in range(problem.n_satellite_station)])
+    #     return list(unique_permutations),satellite_combinations
+    # else:
+    for _ in range(10000):  
+        station_permutation = next(itertools.permutations(stations, len(stations)))
+        if station_permutation not in unique_permutations:
+            unique_permutations.add(tuple(station_permutation))
+        for perm in unique_permutations:
+            index = [i for i, x in enumerate(perm) if x == 1]
+            satellite_combinations.append([random.choice(index) for _ in range(problem.n_satellite_station)])
 
-def neighbor(problem: UFLP, current_main_stations_opened: List[int], current_satellite_assignments:List[int]) -> Tuple [List[int],List[int]]:
-    
-    i = random.randint(0, problem.n_main_station - 1)
-    j = random.randint(0, problem.n_main_station - 1)
-    new_main_station1 = random.randint(0, problem.n_main_station - 1)
-    new_main_station2 = random.randint(0, problem.n_main_station - 1)
+    return list(unique_permutations), satellite_combinations
 
-    current_main_stations_opened[i] = 1
-    current_main_stations_opened[j] = 0
-    current_satellite_assignments[new_main_station1] = j
-    current_satellite_assignments[new_main_station2] = i
-    
-    return current_main_stations_opened,current_satellite_assignments
-
-def evaluate(problem: UFLP, current_main_stations_opened: List[int], current_satellite_assignments:List[int]):
-    cost = 0
-    for index,main_station in enumerate(current_main_stations_opened):
-        if main_station == 1:
-            cost+=problem.get_opening_cost(index)
-            for index_satellite,satellite_station in enumerate(current_satellite_assignments):
-                if satellite_station == index:
-                    cost+=problem.get_association_cost(index,index_satellite)
-    return cost
