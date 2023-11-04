@@ -1,4 +1,4 @@
-% NOM_ETUDIANT_1 (MATRICULE_1)
+% Zakaria Babahadji 2028025
 % NOM_ETUDIANT_2 (MATRICULE_2)
 
 include "globals.mzn";
@@ -22,8 +22,13 @@ var int: longueur;
 % Partie étudiant
 %-----------------------------------------------------------------------------%
 
+constraint frequences[1] == 0;
+constraint increasing(frequences);
+constraint all_different(distances);
 
+longueur = frequences[m];
 
+solve minimize longueur;
 %-----------------------------------------------------------------------------%
 
 output 

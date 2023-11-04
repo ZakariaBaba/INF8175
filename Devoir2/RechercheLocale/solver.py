@@ -8,7 +8,7 @@ import itertools
 def solve(problem: UFLP) -> Tuple[List[int], List[int]]:
 
     temp = 100
-    cooling_rate = 0.90
+    cooling_rate = 0.99
     
     #Solution initiale
     main_stations_opened = [random.choice([0, 1]) for _ in range(problem.n_main_station)]
@@ -20,8 +20,21 @@ def solve(problem: UFLP) -> Tuple[List[int], List[int]]:
     best_cost = problem.calcultate_cost(best_stations, best_satellites)
 
 
-    neighbor_main,neighbor_sattelite = neighbor(problem, best_stations)
-   
+    for i in range(5000):
+        new_sation, new_sattelite = local_search(problem, best_stations, temp, cooling_rate,best_cost)
+        new_cost = problem.calcultate_cost(best_stations, best_satellites)
+        if new_cost < best_cost:
+            best_cost = new_cost
+            best_stations = new_sation
+            best_satellites = new_sattelite
+        i+=1
+    return best_stations, best_satellites
+
+def local_search(problem: UFLP, stations, temp, cooling_rate,best_cost):
+    
+    neighbor_main,neighbor_sattelite = neighbor(problem, stations)
+    best_stations = stations
+    best_satellites = []
     for permutation in neighbor_main:
         for index,satelite in enumerate(permutation):
             new_cost = problem.calcultate_cost(permutation, neighbor_sattelite[index])
@@ -31,6 +44,10 @@ def solve(problem: UFLP) -> Tuple[List[int], List[int]]:
                 best_stations = permutation
                 best_satellites = neighbor_sattelite[index]
                 best_cost = new_cost
+            # if new_cost < best_cost:
+            #     best_cost = new_cost
+            #     best_stations = permutation
+            #     best_satellites = neighbor_sattelite[index]
         temp *= cooling_rate
     return best_stations, best_satellites
 
@@ -46,7 +63,7 @@ def neighbor(problem: UFLP,stations):
     #         satellite_combinations.append([random.choice(index) for _ in range(problem.n_satellite_station)])
     #     return list(unique_permutations),satellite_combinations
     # else:
-    for _ in range(10000):  
+    for _ in range(1000):  
         station_permutation = next(itertools.permutations(stations, len(stations)))
         if station_permutation not in unique_permutations:
             unique_permutations.add(tuple(station_permutation))
