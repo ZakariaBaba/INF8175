@@ -1,4 +1,4 @@
-% NOM_ETUDIANT_1 (MATRICULE_1)
+% Zakaria Babahadji 2028025
 % NOM_ETUDIANT_2 (MATRICULE_2)
 
 include "globals.mzn";
@@ -23,8 +23,42 @@ var int: total_commun;
 % Partie étudiant
 %-----------------------------------------------------------------------------%
 
+% Nombre égal de tour
+constraint sum(i in 1..n, j in 1..n)(terrain[i,j] == R) == sum(i in 1..n, j in 1..n)(terrain[i,j] == B);
+
+% Reflexion verticale
+constraint forall(i in 1..n, j in 1..n where i <= j) (
+    terrain[i, j] == terrain[j, i]
+);
+
+%Croisements horizontals 
+constraint forall(i, j in dim where terrain[i, j] == R) (
+              (forall(k in dim where k != j)(terrain[i, k] != B)) /\
+              (forall(k in dim where k != j)(terrain[k, j] != B))
+            );
+%Croisements verticals
+constraint forall(i,j in dim where terrain[i,j] == R) (
+              (forall(k in dim where k != i)(terrain[i, k] != B)) /\
+              (forall(k in dim where k != i)(terrain[k, j] != B))
+              );
+              
+%Croisements Diagonals            
+constraint forall(i, j in dim where terrain[i, j] == R) (
+                  forall(d_i,d_j in dim where d_i !=i /\ d_j != j )(
+                    let {
+                          int: diff_i = abs(d_i - i);
+                          int: diff_j = abs(d_j - j);
+                    } in
+                    (
+                    terrain[d_i, d_j] != B) \/ (diff_i != diff_j)
+                    
+                  )
+            );
 
 
+total_commun = sum(i in 1..n, j in 1..n)(terrain[i,j] == R);
+
+solve maximize total_commun;
 %-----------------------------------------------------------------------------%
 output 
 ["Terrain :\n"]
