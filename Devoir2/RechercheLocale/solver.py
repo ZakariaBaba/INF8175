@@ -6,23 +6,36 @@ from uflp import UFLP
 from typing import List, Tuple
 import random
 
-def solve(problem: UFLP) -> Tuple[List[int], List[int]]:
 
-    #Solution initiale
-    best_stations,best_satellites,best_cost=generate_init_solution(problem)
-    done = True
-    while done:
-        done = False
-        #Hill climbing Algorithm
-        for station_index in range(problem.n_main_station) :
-            new_stations,new_satellite=get_neighbor(problem,best_stations, station_index)
-            new_cost=problem.calcultate_cost(new_stations,new_satellite)
-            if new_cost < best_cost:
-                done = True
-                best_stations = new_stations
-                best_satellites = new_satellite
-                best_cost = new_cost
-                break
+def solve(problem: UFLP) -> Tuple[List[int], List[int]]:
+    objecitf=[]
+    alpha=500
+    for i in range (alpha):
+        
+        #Solution initiale
+        best_stations,best_satellites,best_cost=generate_init_solution(problem)
+        done = True
+        time=10000
+        while done and time>0:
+            done = False
+            #Hill climbing Algorithm
+            for station_index in range(problem.n_main_station) :
+                new_stations,new_satellite=get_neighbor(problem,best_stations, station_index)
+                new_cost=problem.calcultate_cost(new_stations,new_satellite)
+                if new_cost < best_cost:
+                    done = True
+                    best_stations = new_stations
+                    best_satellites = new_satellite
+                    best_cost = new_cost
+                    #break
+                    time-=1
+        objecitf.append((best_stations,best_satellites,best_cost))
+            
+            
+            
+                
+        #objectif, minimiser le coût autant que possible 
+        best_stations,best_satellites,_=min(objecitf, key=lambda x: x[2])
     return best_stations, best_satellites
 
 def generate_init_solution(problem:UFLP):
@@ -33,7 +46,11 @@ def generate_init_solution(problem:UFLP):
         main_stations_state[random.randint(0, problem.n_main_station - 1)] = 1
     #Indexer les stations principales qui sont ouvertes
     index_main_stations_opened = [i for i, x in enumerate(main_stations_state) if x == 1]
-    init_satellites = [random.choice(index_main_stations_opened) for _ in range(problem.n_satellite_station)]
+    #hypothèse sur la base du coût d'ouverture minimum
+    min_cost_open=[(problem.get_opening_cost(val),val) for val in index_main_stations_opened]
+    _,choix=min_cost_open[min_cost_open.index(min(min_cost_open))]
+
+    init_satellites = [choix for _ in range(problem.n_satellite_station)]
     init_stations = main_stations_state
     init_cost = problem.calcultate_cost(init_stations, init_satellites)
     
