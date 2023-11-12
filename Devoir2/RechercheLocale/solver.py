@@ -10,8 +10,8 @@ import random
 def solve(problem: UFLP) -> Tuple[List[int], List[int]]:
     objecitf=[]
     alpha=500
+    #Restarts 500 fois
     for i in range (alpha):
-        
         #Solution initiale
         best_stations,best_satellites,best_cost=generate_init_solution(problem)
         done = True
@@ -27,13 +27,8 @@ def solve(problem: UFLP) -> Tuple[List[int], List[int]]:
                     best_stations = new_stations
                     best_satellites = new_satellite
                     best_cost = new_cost
-                    #break
                     time-=1
-        objecitf.append((best_stations,best_satellites,best_cost))
-            
-            
-            
-                
+        objecitf.append((best_stations,best_satellites,best_cost))      
         #objectif, minimiser le coût autant que possible 
         best_stations,best_satellites,_=min(objecitf, key=lambda x: x[2])
     return best_stations, best_satellites
