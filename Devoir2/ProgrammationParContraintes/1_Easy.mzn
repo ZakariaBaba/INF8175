@@ -1,5 +1,5 @@
-% Zakaria Babahadji 2028025
-% NOM_ETUDIANT_2 (MATRICULE_2)
+%Zakaria Babahadji (2028025)
+%NGOUNOU TCHAWE Armel (2238017)
 
 include "globals.mzn";
 

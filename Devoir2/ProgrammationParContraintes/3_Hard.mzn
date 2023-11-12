@@ -1,5 +1,5 @@
-% NOM_ETUDIANT_1 (MATRICULE_1)
-% NOM_ETUDIANT_2 (MATRICULE_2)
+%Zakaria Babahadji (2028025)
+%NGOUNOU TCHAWE Armel (2238017)
 
 include "globals.mzn";
 
@@ -34,48 +34,44 @@ var int: objectif_match_espaces;
 
 %Contrainte 1 et 2 Pour effectuer une rencontre, deux équipe doivent être présente sur le même terrain  
 % et un match doit avoir lieu sur le terrain désigné comme le domicile de l’une des deux équipes:
-
 constraint forall(j in jours)(forall(e in equipes)
-(calendrier[e,j] == calendrier[to_enum(equipes,calendrier[e,j]),j])
+  (calendrier[e,j] == calendrier[to_enum(equipes,calendrier[e,j]),j])
 );
 
              
-%Contrainte 3 Un terrain ne peut accueillir plus de deux équipes. ************Differents:
-
+%Contrainte 3 Un terrain ne peut accueillir plus de deux équipes:
 constraint forall(j in jours, i in equipes) (
   sum(k in equipes) (calendrier[k, j] = i) <=2
 );
 
 
-% %Contrainte 4 Si une équipe ne joue pas lors d’une période elle est placée sur le terrain n°0 *********:
-constraint forall(j in jours, e in equipes)(calendrier[e,j] =0 \/ calendrier[e,j]>0 );
+%Contrainte 4 Si une équipe ne joue pas lors d’une période elle est placée sur le terrain n°0:
+constraint forall(j in jours, e in equipes)(
+  calendrier[e,j] == 0 \/ calendrier[e,j]>0 
+);
+
+%La contrainte 5 est redondante,car une solution possedant moins de 7 match a domicile est impossible de part la contrainte 2
 
 
-% Une équipe ne doit pas jouer trop souvent à domicile, elle n’est donc pas autorisée à jouer plus
-%de 7 jours sur son propre terrain
-% constraint forall(i in equipes) (
-%     sum([calendrier[i, j] == i | j in jours]) <= 7
-% );
-
-%Contrainte 6 :
-constraint forall(e1, e2 in equipes where e1 != e2) (
+%Contrainte 6 Les équipes doivent jouer deux fois l’une contre l’autre. :
+constraint forall(e1, e2 in equipes where e1 < e2) (
   count(j in jours) (calendrier[e1, j] == to_enum(equipes, e2) \/ calendrier[e2, j] == to_enum(equipes, e1)) == 2
 );   
 
-% %Contrainte 7 :
-constraint forall(i, k in equipes where i != k) (
-  abs(dates[i, k].2 - dates[i, k].1) >= 3 
+% %Contrainte 7 Les deux rencontres de deux équipes doivent être espacées de 3 jours au minimum :
+constraint forall(e1, e2 in equipes where e1 < e2) (
+  abs(dates[e1, e2].2 - dates[e1, e2].1) >= 3 
 );
 
 
-%Contrainte 8 :
-constraint forall(e1 in equipes, e2 in equipes where e1 != e2)(
+%Contrainte 8 Les deux rencontres de deux équipes doivent avoir lieu sur des terrains différents:
+constraint forall(e1 in equipes, e2 in equipes where e1 < e2)(
     calendrier[e1, dates[e1, e2].1] != calendrier[e1, dates[e1, e2].2]
 );
 
-% objectif_match_espaces =sum([if abs(dates[e1, e2].1 - dates[e1, e2].2) >= 6 then 1 else 0 endif | e1 in equipes, e2 in equipes where e1 != e2]);
-objectif_match_espaces = sum(i, j in equipes where i < j) (
-    abs(dates[i, j].2 - dates[i, j].1)  >=  6
+
+objectif_match_espaces = sum(e1, e2 in equipes where e1 < e2) (
+    abs(dates[e1, e2].2 - dates[e1, e2].1)  >=  6
 );
 solve maximize objectif_match_espaces;
 
@@ -87,7 +83,6 @@ solve maximize objectif_match_espaces;
 % Lorsqu'une équipe ne joue pas, l'emplacement de match reste vide sinon elle contient le nom de l'équipie adverse.
 % Si une équipe ne joue pas à domicile, un "@" précède le nom de l'équipe adverse.
 output 
-[show(calendrier)++ "\n"] ++
 ["Calendrier:\n"]
 ++
 [if j = 1 then "   " else "" endif ++ if j < 10 then "  j" ++ show(j) else " j" ++ show(j) endif ++ if j = d then "\n" else "" endif | j in jours ]
