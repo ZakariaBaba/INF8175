@@ -34,14 +34,14 @@ var int: objectif_match_espaces;
 
 %Contrainte 1 et 2 Pour effectuer une rencontre, deux équipe doivent être présente sur le même terrain  
 % et un match doit avoir lieu sur le terrain désigné comme le domicile de l’une des deux équipes:
-constraint forall(j in jours)(forall(e in equipes)
-  (calendrier[e,j] == calendrier[to_enum(equipes,calendrier[e,j]),j])
-);
-
+constraint forall(e1, e2 in equipes where e1 < e2) (
+    (calendrier[e1, dates[e1, e2].1] = to_enum(equipes, e1) \/ calendrier[e1, dates[e1, e2].1] = to_enum(equipes, e2)) /\
+    (calendrier[e1, dates[e1, e2].2] = to_enum(equipes, e1) \/ calendrier[e1, dates[e1, e2].2] = to_enum(equipes, e2) )
+);    
              
 %Contrainte 3 Un terrain ne peut accueillir plus de deux équipes:
-constraint forall(j in jours, i in equipes) (
-  sum(k in equipes) (calendrier[k, j] = i) <=2
+constraint forall(j in jours, e in equipes) (
+  sum(k in equipes) (calendrier[k, j] = e) <=2
 );
 
 
@@ -50,17 +50,19 @@ constraint forall(j in jours, e in equipes)(
   calendrier[e,j] == 0 \/ calendrier[e,j]>0 
 );
 
-%La contrainte 5 est redondante,car une solution possedant moins de 7 match a domicile est impossible de part la contrainte 2
-
-
-%Contrainte 6 Les équipes doivent jouer deux fois l’une contre l’autre. :
-constraint forall(e1, e2 in equipes where e1 < e2) (
-  count(j in jours) (calendrier[e1, j] == to_enum(equipes, e2) \/ calendrier[e2, j] == to_enum(equipes, e1)) == 2
-);   
+%Contrainte 5 Une équipe ne doit pas jouer plus de 7 jours sur son propre terrain (à domicile)
+constraint forall(e in equipes) (
+    count(j in jours)(calendrier[e, j] = to_enum(equipes, e)) = 7 /\
+    all_different([dates[e, e2].1 | e2 in equipes where e != e2]) /\
+    all_different([dates[e, e2].2 | e2 in equipes where e != e2]) 
+  
+);
 
 % %Contrainte 7 Les deux rencontres de deux équipes doivent être espacées de 3 jours au minimum :
 constraint forall(e1, e2 in equipes where e1 < e2) (
-  abs(dates[e1, e2].2 - dates[e1, e2].1) >= 3 
+  abs(dates[e1, e2].2 - dates[e1, e2].1) >= 3 /\
+  %Contrainte 6 Les équipes doivent jouer deux fois l’une contre l’autre. :
+   dates[e1, e2] = dates[e2, e1]
 );
 
 
@@ -68,7 +70,6 @@ constraint forall(e1, e2 in equipes where e1 < e2) (
 constraint forall(e1 in equipes, e2 in equipes where e1 < e2)(
     calendrier[e1, dates[e1, e2].1] != calendrier[e1, dates[e1, e2].2]
 );
-
 
 objectif_match_espaces = sum(e1, e2 in equipes where e1 < e2) (
     abs(dates[e1, e2].2 - dates[e1, e2].1)  >=  6
