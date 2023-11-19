@@ -11,7 +11,7 @@ class MyPlayer(PlayerAbalone):
     Attributes:
         piece_type (str): piece type of the player
     """
-
+    keep=[]
     def __init__(self, piece_type: str, name: str = "bob", time_limit: float=60*15,*args) -> None:
         """
         Initialize the PlayerAbalone instance.
@@ -35,9 +35,6 @@ class MyPlayer(PlayerAbalone):
         Returns:
             Action: selected feasible action
         """
-        #TODO
-        # [print(*x) for x in current_state.get_rep().get_grid()] 
-        # [print(a,b.__dict__) for a,b in current_state.get_rep().env.items()]         
         _,action = self.max_value(current_state)
         self.keep.append((_,action))
         compare=self.get_time_limit()-self.get_remaining_time()
@@ -111,20 +108,20 @@ class MyPlayer(PlayerAbalone):
     def center_heuristic(self,state: GameState):
         
         """
-    Function that evaluates the score of a state.
-    This heuristic is based on the number of pieces near the center of the board.
-    The closer the piece is to the center, the better.
-    On the opposite, the pieces on the edge of the board are bad,
-    meaning that they will have a negative impact on the score.
+        Function that evaluates the score of a state.
+        This heuristic is based on the number of pieces near the center of the board.
+        The closer the piece is to the center, the better.
+        On the opposite, the pieces on the edge of the board are bad,
+        meaning that they will have a negative impact on the score.
 
-    Score placements for player:
-        Manhantan Distance from center -> score :
-            0 or 1 -> +10
-            2 -> +8
-            3 -> -4
-            4 -> -6
+        Score placements for player:
+            Manhantan Distance from center -> score :
+                0 or 1 -> +10
+                2 -> +8
+                3 -> -4
+                4 -> -6
 
-    """
+        """
         size = state.get_rep().get_dimensions()
         center = (size[0]//2,size[1]//2)
         score_player = 0
@@ -141,11 +138,11 @@ class MyPlayer(PlayerAbalone):
                 if self.is_alone(neighbours,piece):
                     score_opponent += 15
         facteurScore = 50
-        for p in state.get_players():
-            if p.get_id() == state.get_next_player().get_id():
-                score_player += facteurScore * state.get_player_score(p)
+        for player in state.get_players():
+            if player.get_id() == state.get_next_player().get_id():
+                score_player += facteurScore * state.get_player_score(player)
             else:
-                score_opponent -= facteurScore * state.get_player_score(p)
+                score_opponent -= facteurScore * state.get_player_score(player)
         return score_player - score_opponent
         
 
