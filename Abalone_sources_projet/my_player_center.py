@@ -39,7 +39,7 @@ class MyPlayer(PlayerAbalone):
         self.keep.append((_,action))
         compare=self.get_time_limit()-self.get_remaining_time()
                 
-        if compare>=float(15) and action==None:
+        if compare>=float(15):
             best=[]
             for act in current_state.get_possible_actions():
                 if act in self.keep:
@@ -133,10 +133,14 @@ class MyPlayer(PlayerAbalone):
                 score_player += self.score_calc(distance)
                 if self.is_alone(neighbours,piece):
                     score_player -= 15
+                if not state.in_hexa(position):
+                    score_player -= 30
             else:
                 score_opponent += self.score_calc(distance)
                 if self.is_alone(neighbours,piece):
                     score_opponent += 15
+                if not state.in_hexa(position):
+                    score_opponent += 30
         facteurScore = 50
         for player in state.get_players():
             if player.get_id() == state.get_next_player().get_id():
