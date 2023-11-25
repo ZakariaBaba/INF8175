@@ -3,8 +3,7 @@ Zakaria Babahadji (2028025)
 NGOUNOU TCHAWE Armel (2238017)
 '''
 import nn
-import numpy as np
-
+import time
 from backend import PerceptronDataset, RegressionDataset, DigitClassificationDataset
 
 
@@ -34,7 +33,6 @@ class PerceptronModel(object):
             x: a node with shape (1 x dimensions)
         Returns: a node containing a single number (the score)
         """
-        "*** TODO: COMPLETE HERE FOR QUESTION 1 ***"
         return nn.DotProduct(x, self.get_weights())
 
     def get_prediction(self, x: nn.Constant) -> int:
@@ -43,7 +41,6 @@ class PerceptronModel(object):
 
         Returns: 1 or -1
         """
-        "*** TODO: COMPLETE HERE FOR QUESTION 1 ***"
         if nn.as_scalar(self.run(x)) >= 0:
             return 1
         else:
@@ -53,7 +50,6 @@ class PerceptronModel(object):
         """
         Train the perceptron until convergence.
         """
-        "*** TODO: COMPLETE HERE FOR QUESTION 1 ***"
         converged = False
         while not converged:
             converged = True
@@ -73,8 +69,7 @@ class RegressionModel(object):
 
     
     def __init__(self) -> None:
-        # Initialize your model parameters here
-        self.learning_rate = 0.1
+        self.learning_rate = 0.01
         self.n_layer = 3
         self.batch_size = 50
         self.layer_config =[1,300,300,1]
@@ -143,8 +138,13 @@ class DigitClassificationModel(object):
     """
 
     def __init__(self) -> None:
-        # Initialize your model parameters here
-        "*** TODO: COMPLETE HERE FOR QUESTION 3 ***"
+        self.learning_rate = 0.1
+        self.n_layer = 4
+        self.batch_size = 500
+        self.layer_config =[784,200,200,200,10]
+        self.w = [nn.Parameter(self.layer_config[i], self.layer_config[i+1]) for i in range(self.n_layer)]
+        self.b = [nn.Parameter(1, self.layer_config[i+1]) for i in range(self.n_layer)]
+
 
     def run(self, x: nn.Constant) -> nn.Node:
         """
@@ -160,7 +160,12 @@ class DigitClassificationModel(object):
             A node with shape (batch_size x 10) containing predicted scores
                 (also called logits)
         """
-        "*** TODO: COMPLETE HERE FOR QUESTION 3 ***"
+        for i in range(self.n_layer):
+            linear = nn.Linear(x, self.w[i])
+            x = nn.AddBias(linear, self.b[i])
+            if i < self.n_layer-1:
+                x = nn.ReLU(x)
+        return x
 
     def get_loss(self, x: nn.Constant, y: nn.Constant) -> nn.Node:
         """
@@ -175,10 +180,18 @@ class DigitClassificationModel(object):
             y: a node with shape (batch_size x 10)
         Returns: a loss node
         """
-        "*** TODO: COMPLETE HERE FOR QUESTION 3 ***"
+        return nn.SoftmaxLoss(self.run(x), y)
 
     def train(self, dataset: DigitClassificationDataset) -> None:
         """
         Trains the model.
         """
-        "*** TODO: COMPLETE HERE FOR QUESTION 3 ***"
+        for x,y in dataset.iterate_forever(self.batch_size):
+            if dataset.get_validation_accuracy()> 0.9735 :
+               break
+            for i in range(self.n_layer):
+                grad_w,grad_b= nn.gradients(self.get_loss(x,y), [self.w[i], self.b[i]])
+                self.w[i].update(grad_w, -self.learning_rate)
+                self.b[i].update(grad_b, -self.learning_rate)
+
+
