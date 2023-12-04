@@ -12,6 +12,7 @@ class MyPlayer(PlayerAbalone):
         piece_type (str): piece type of the player
     """
     keep=[]
+   
     def __init__(self, piece_type: str, name: str = "bob", time_limit: float=60*15,*args) -> None:
         """
         Initialize the PlayerAbalone instance.
@@ -37,22 +38,28 @@ class MyPlayer(PlayerAbalone):
         """
         _,action = self.max_value(current_state)
         self.keep.append((_,action))
+        #Time management 
         compare=self.get_time_limit()-self.get_remaining_time()
-                
-        if compare>=float(15):
+
+        #Choose the action following the high cost after half part time
+        if compare>=float(70):
+            info='N'
             best=[]
             for act in current_state.get_possible_actions():
-                if act in self.keep:
-                    best.append(self.keep[self.keep.index(act)])
-            if len(best)>0:
-                _,action=max(best)
+                
+                for a in self.keep:
+                    if act in a:
+                        info='Y'
+                        best.append(self.keep[self.keep.index(a)])
+            if len(best)>3 and info=='Y':
+                _, action = max(best, key=lambda x: x[0])
         return action
     
     def max_value(self, state: GameState, alpha = -math.inf, beta = math.inf, maxDepth = 0):
 
         if state.is_done():
             return state.get_player_score(self), None
-        elif maxDepth == 3:
+        elif maxDepth == 4:
             return self.center_heuristic(state), None
         best_value = -math.inf
         best_action = None
@@ -71,7 +78,7 @@ class MyPlayer(PlayerAbalone):
             
         if state.is_done():
             return state.get_player_score(self), None
-        elif maxDepth == 3:
+        elif maxDepth == 4:
             return self.center_heuristic(state), None
         best_value = math.inf
         best_action = None
