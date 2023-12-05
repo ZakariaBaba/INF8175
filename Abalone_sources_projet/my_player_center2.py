@@ -94,7 +94,7 @@ class MyPlayer(PlayerAbalone):
                 return best_value, best_action
         return best_value, best_action
     
-
+    #Heuristique basé sur le voisinage
     def heuristic(self,state: GameState):
        
         
@@ -113,6 +113,7 @@ class MyPlayer(PlayerAbalone):
                 score -= self.euclidean_distance(position,(8,4))
         return score
 
+    #Heuristic based on the center position, bad position and good position
     def center_heuristic(self,state: GameState):
         
         """
