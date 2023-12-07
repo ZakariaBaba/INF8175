@@ -59,7 +59,7 @@ class MyPlayer(PlayerAbalone):
 
         if state.is_done():
             return state.get_player_score(self), None
-        elif maxDepth == 4:
+        elif maxDepth == 3:
             return self.center_heuristic(state), None
         best_value = -math.inf
         best_action = None
@@ -78,7 +78,7 @@ class MyPlayer(PlayerAbalone):
             
         if state.is_done():
             return state.get_player_score(self), None
-        elif maxDepth == 4:
+        elif maxDepth == 3:
             return self.center_heuristic(state), None
         best_value = math.inf
         best_action = None

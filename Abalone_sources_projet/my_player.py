@@ -57,7 +57,7 @@ class MyPlayer(PlayerAbalone):
         if state.is_done():
             return state.get_player_score(self), None
         elif maxDepth == 3:
-            return self.heuristic(state), None
+            return self.group_heuristic(state), None
         best_value = -math.inf
         best_action = None
         for action in state.get_possible_actions():
@@ -76,7 +76,7 @@ class MyPlayer(PlayerAbalone):
         if state.is_done():
             return state.get_player_score(self), None
         elif maxDepth == 3:
-            return self.heuristic(state), None
+            return self.group_heuristic(state), None
         best_value = math.inf
         best_action = None
         for action in state.get_possible_actions():
@@ -91,7 +91,7 @@ class MyPlayer(PlayerAbalone):
         return best_value, best_action
     
 
-    def heuristic(self,state: GameState):
+    def group_heuristic(self,state: GameState):
      
         score = 0
         for position,piece in state.get_rep().env.items():

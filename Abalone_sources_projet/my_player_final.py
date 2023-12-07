@@ -94,34 +94,20 @@ class MyPlayer(PlayerAbalone):
                 return best_value, best_action
         return best_value, best_action
     
-    #Heuristique basé sur le voisinage
-    def heuristic(self,state: GameState):
-       
-        
-        score = 0
-        for position,piece in state.get_rep().env.items():
-            if piece.__dict__['piece_type'] == self.piece_type:    
-                neighbours = state.get_neighbours(position[0],position[1])
-                for direction,neighbour in neighbours.items():
-                    # Verifying if the neighbour is the same color
-                    if neighbour and neighbour[0] == self.piece_type and state.in_hexa(neighbour[1]):
-                        score += 1
-                    # Verifying if the neighbour is not the same color
-                    elif neighbour and neighbour[0] != self.piece_type:
-                        score += 3
-                # Having more pieces near the center is better
-                score -= self.euclidean_distance(position,(8,4))
-        return score
 
-    #Heuristic based on the center position, bad position and good position
     def center_heuristic(self,state: GameState):
         
         """
         Function that evaluates the score of a state.
-        This heuristic is based on the number of pieces near the center of the board.
+        This heuristic is based on multiple things :
+        First the number of pieces near the center of the board.
         The closer the piece is to the center, the better.
         On the opposite, the pieces on the edge of the board are bad,
         meaning that they will have a negative impact on the score.
+        Second, the number of neighbours of the same color.
+        The more neighbours of the same color, the better.
+        Third, if the pieces is on the board or not.
+
 
         Score placements for player:
             Manhantan Distance from center -> score :
@@ -135,35 +121,16 @@ class MyPlayer(PlayerAbalone):
         center = (size[0]//2,size[1]//2)
         score_player = 0
         score_opponent = 0 
-        Bad_position = ((0,4),(3,1), (2,2), (1,3), (4,0),(6,0),(1,5),(8,0), (2,6),(10,0),  (3,7),
-        (12,0),(4,8),(13,1),  (6,8),(14,2), (8,8),(15,3),(10,8),(16,4), (15,5), (14,6), (13,7), (12,8))
-        
-        Good_position= ((6,2), (5,3), (4,4), (8,2), (7,3), (6,4), (5,5),
-            (10,2), (9,3), (8,4), (7,5), (6,6), (11,3), (10,4),(8,6), (12,4),(11,5),(10,6))
         for position,piece in state.get_rep().env.items():
             distance = int(self.manhattan_distance(position,center)/2)
             neighbours = state.get_neighbours(position[0],position[1])
             if piece.__dict__['piece_type'] == self.piece_type:
                 score_player += self.score_calc(distance)
-                for po in position:
-                    if po in Bad_position:
-                       
-                        score_player -=7
-                    elif po in Good_position:
-                        
-                        score_player +=7
                 if self.is_alone(neighbours,piece):
                     score_player -= 15
                 if not state.in_hexa(position):
                     score_player -= 30
             else:
-                for po in position:
-                    if po in Bad_position:
-                       
-                        score_opponent -=7
-                    elif po in Good_position:
-                        
-                        score_opponent +=7
                 score_opponent += self.score_calc(distance)
                 if self.is_alone(neighbours,piece):
                     score_opponent += 15
@@ -183,8 +150,6 @@ class MyPlayer(PlayerAbalone):
             if neighbour and neighbour[0] == piece.get_type():
                 return False
         return True
-    
-  
     
     def score_calc(self,distance):
         score_list = {0:10,1:10,2:8,3:-4,4:-6}
